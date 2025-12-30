@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Yue | A Love Letter to AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+		/* === Lightbox Navigation (暗房翻页按钮) === */
+        .lightbox-nav {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -50px;
+            color: white;
+            font-weight: bold;
+            font-size: 50px; /* 大一点，方便点 */
+            transition: 0.3s ease;
+            user-select: none;
+            z-index: 10000; /* 必须比图片高 */
+        }
+
+        .lightbox-nav.prev { left: 2%; }
+        .lightbox-nav.next { right: 2%; }
+
+        .lightbox-nav:hover {
+            color: var(--neon-blue);
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+        }
+
+        /* 手机端稍微小一点 */
+        @media (max-width: 768px) {
+            .lightbox-nav { font-size: 30px; padding: 10px; }
+        }
+		/* === Lightbox (点击放大) 样式 === */
+        .lightbox-modal {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            z-index: 9999; /* 保证在最上层 */
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9); /* 黑色背景，90%不透明度 */
+            backdrop-filter: blur(5px); /*以此增加高级感*/
+        }
+
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 1200px; /* 最大宽度，防止在超大屏上太大 */
+            max-height: 85vh;
+            object-fit: contain;
+            border: 2px solid var(--neon-blue); /* 给放大的图加个科技感边框 */
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.2);
+            animation: zoomIn 0.3s;
+        }
+
+        #lightbox-caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            height: 150px;
+            font-family: 'Orbitron';
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: var(--neon-red);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 放大动画 */
+        @keyframes zoomIn {
+            from {transform:scale(0.8); opacity:0} 
+            to {transform:scale(1); opacity:1}
+        }
+
+        /* 给原来的轮播图加个“可点击”的手型 */
+        .slider-img {
+            cursor: zoom-in; 
+        }
+		/* === Tech Slider Styles === */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 250px; /* 固定高度，防止图片乱跳 */
+            background: #000;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .slider-wrapper {
+            width: 100%;
+			height: 100%;
+            position: relative;
+        }
+
+        .slider-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 保证填满 */
+            position: absolute;
+            top: 0; left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none; /* 防止拖拽图片 */
+        }
+
+        .slider-img.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 左右切换按钮 */
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            width: 30px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 10;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .slider-btn:hover {
+            background: var(--neon-blue);
+            color: black;
+        }
+        .prev { left: 0; border-radius: 0 5px 5px 0; border-left: none; }
+        .next { right: 0; border-radius: 5px 0 0 5px; border-right: none; }
+
+        /* 计数器 (1/3) */
+        .slider-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border: 1px solid #555;
+            font-family: 'Rajdhani';
+            z-index: 10;
+        }
+		/* === Branching Logic Grid === */
+        .branch-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .branch-card {
+            background: rgba(255, 157, 0, 0.05); /* 淡淡的琥珀色，代表隐藏/额外 */
+            border: 1px solid #443322;
+            padding: 30px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .branch-card:hover {
+            border-color: #ff9d00;
+            background: rgba(255, 157, 0, 0.1);
+        }
+
+        .condition-badge {
+            font-family: 'Rajdhani', monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #ff9d00;
+            border: 1px dashed #ff9d00;
+            padding: 5px 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .branch-card h3 {
+            font-family: 'Orbitron';
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .branch-desc {
+            font-size: 0.95rem;
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .result-box {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 15px;
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+
+        .arrow {
+            color: #ff9d00;
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
+        /* 第二个结局稍微灰暗一点，代表“停滞” */
+        .branch-card:nth-child(2) {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: #444;
+        }
+        .branch-card:nth-child(2):hover {
+            border-color: #fff;
+        }
+        .branch-card:nth-child(2) .arrow {
+            color: #aaa;
+        }
+
+        @media(max-width: 768px) {
+            .branch-grid { grid-template-columns: 1fr; }
+        }
+		/* === Narrative Systems Grid === */
+        .narrative-sys-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .sys-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            padding: 30px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .sys-card:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        .sys-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .sys-card h3 {
+            font-family: 'Orbitron';
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        /* 特殊样式：不可逆转的卡片 (红色警告风) */
+        .warning-card {
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            background: linear-gradient(45deg, rgba(255,0,60,0.05) 0%, transparent 100%);
+        }
+        
+        .warning-card:hover {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.1);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 手机端单列 */
+        @media(max-width: 768px) {
+            .narrative-sys-grid { grid-template-columns: 1fr; }
+        }
+/* === Technical Grid Styles === */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .tech-card {
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid #333;
+            padding: 20px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-card:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .tech-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tech-name {
+            font-family: 'Orbitron';
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .tech-tag {
+            background: #222;
+            color: #888;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border: 1px solid #444;
+            font-family: 'Rajdhani';
+            font-weight: 700;
+        }
+
+        .tech-img-box {
+            width: 100%;
+            height: 200px; /* 截图高度固定，保持整齐 */
+            background: #000;
+            border: 1px solid #222;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tech-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 保证截图填满框框 */
+            opacity: 0.8;
+            transition: 0.5s;
+        }
+
+        .tech-card:hover .tech-img-box img {
+            opacity: 1;
+            transform: scale(1.05); /* 鼠标放上去微微放大 */
+        }
+
+        .tech-desc h4 {
+            color: white;
+            font-family: 'Orbitron';
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tech-list li {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .tech-list li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--neon-blue);
+            font-size: 0.8rem;
+        }
+
+        /* 手机端变单列 */
+        @media(max-width: 768px) {
+            .tech-grid { grid-template-columns: 1fr; }
+        }
+        :root {
+            --neon-red: #ff003c; /* 警报/失去 */
+            --neon-blue: #00f3ff; /* Yue/希望 */
+            --bg-color: #050505;
+            --text-gray: #a0a0a0;
+            --glass-panel: rgba(20, 20, 20, 0.8);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* === Three.js Canvas === */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* === Scanlines & Vignette === */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        /* === Navigation === */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .back-link {
+            color: var(--neon-blue);
+            text-decoration: none;
+            border: 1px solid var(--neon-blue);
+            padding: 5px 15px;
+            transition: 0.3s;
+            font-weight: 700;
+        }
+        .back-link:hover { background: var(--neon-blue); color: black; }
+
+        /* === Container === */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* === Typography === */
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; }
+        
+        h1 {
+            font-size: 5rem;
+            line-height: 1;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 var(--neon-red), -2px -2px 0 var(--neon-blue);
+            animation: glitch 4s infinite;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 30px;
+            border-left: 4px solid var(--neon-blue);
+            padding-left: 20px;
+            margin-top: 100px;
+        }
+
+        p { margin-bottom: 20px; font-size: 1.1rem; color: var(--text-gray); text-align: justify; }
+
+        .highlight { color: white; font-weight: 700; }
+        .red { color: var(--neon-red); }
+        .blue { color: var(--neon-blue); }
+
+        /* === Sections === */
+        .hero {
+            height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+
+        .content-box {
+            background: var(--glass-panel);
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 40px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* === Comparison Table (Reality vs Game) === */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .grid-header {
+            font-family: 'Orbitron';
+            color: white;
+            border-bottom: 1px solid white;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .reality-col { border-right: 1px solid #333; padding-right: 20px; }
+        .game-col { color: var(--neon-blue); }
+
+        /* === Loop Cycle Visualization === */
+        .loop-cycle {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        .cycle-step {
+            flex: 1;
+            min-width: 150px;
+            padding: 20px;
+            border: 1px solid #333;
+            margin: 5px;
+            position: relative;
+        }
+        .cycle-step::after {
+            content: '→';
+            position: absolute;
+            right: -10px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-red);
+            font-size: 1.5rem;
+        }
+        .cycle-step:last-child::after { content: ''; }
+
+        /* === Ending Section === */
+        .ending-block {
+            text-align: center;
+            padding: 80px 0;
+            border-top: 1px solid var(--neon-red);
+            margin-top: 80px;
+        }
+        
+        .spoiler-btn {
+            background: transparent;
+            color: var(--neon-red);
+            border: 2px solid var(--neon-red);
+            padding: 15px 40px;
+            font-family: 'Orbitron';
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .spoiler-btn:hover { background: var(--neon-red); color: black; }
+
+        /* === Media Container === */
+        .media-placeholder {
+	width: 100%;
+	background: #111;
+	border: 1px solid #333;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 20px 0;
+	color: #555;
+	position: relative;
+        }
+        .media-placeholder img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+
+        /* === Animations === */
+        @keyframes glitch {
+            0% { text-shadow: 2px 2px 0 var(--neon-red), -2px -2px 0 var(--neon-blue); }
+            5% { text-shadow: -2px -2px 0 var(--neon-red), 2px 2px 0 var(--neon-blue); transform: translate(2px, -2px); }
+            10% { text-shadow: 2px -2px 0 var(--neon-red), -2px 2px 0 var(--neon-blue); transform: translate(-2px, 2px); }
+            15% { text-shadow: 2px 2px 0 var(--neon-red), -2px -2px 0 var(--neon-blue); transform: translate(0, 0); }
+            100% { text-shadow: 2px 2px 0 var(--neon-red), -2px -2px 0 var(--neon-blue); }
+        }
+/* === Narrative Timeline Style === */
+        .timeline-container {
+            position: relative;
+            margin: 60px 0;
+            padding-left: 20px;
+        }
+        
+        /* 垂直线 */
+        .timeline-line {
+            position: absolute;
+            left: 29px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--neon-blue), var(--neon-blue) 40%, var(--neon-red) 100%);
+            z-index: 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 50px;
+            padding-left: 50px;
+            z-index: 1;
+        }
+
+        /* 时间轴上的圆点 */
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background: #050505;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: 0.3s;
+        }
+
+        /* 后面几个危险步骤变红 */
+        .timeline-item.danger .timeline-dot {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 15px var(--neon-red);
+        }
+
+        .step-title {
+            font-family: 'Orbitron';
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .timeline-item.danger .step-title {
+            color: var(--neon-red);
+        }
+
+        .step-desc {
+            color: #aaa;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Design Intent Box */
+        .design-intent-box {
+            border: 1px dashed var(--text-gray);
+            padding: 40px;
+            margin-top: 80px;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+        }
+        .design-intent-box::before {
+            content: 'DESIGNER_NOTE_LOG';
+            position: absolute;
+            top: -12px; left: 20px;
+            background: var(--bg-color);
+            padding: 0 10px;
+            color: var(--text-gray);
+            font-family: 'Orbitron';
+            font-size: 0.8rem;
+        }
+        /* Mobile Fix */
+        @media(max-width: 768px) {
+            h1 { font-size: 3rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .reality-col { border-right: none; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+            .cycle-step::after { content: '↓'; right: 50%; top: 100%; transform: translate(50%, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <nav>
+        <div style="font-family:'Orbitron'; font-weight:700;">PROJECT YUE</div>
+        <a href="https://jamiezh.net/" class="back-link">← BACK TO PORTFOLIO</a>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>PROJECT YUE</h1>
+          <p style="font-size: 1.5rem; letter-spacing: 5px; color: var(--neon-blue);">NOT A LEGEND. JUST A MEMORY.</p>
+
+            <p style="max-width: 600px; margin-top: 20px;">
+              An interactive narrative vertical slice where memory decay becomes a playable system.
+          </p>
+                        <p style="font-size: 1rem;"max-width: 600px; margin-top: 20px;">
+                Built with Houdini and Unreal Engine 5.
+            </p>
+                        
+            <div class="media-placeholder" style="height: 0px; border:none;">
+          </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>01. THE ORIGIN</h2>
+        <div class="content-box">
+            <p>In its conceptual origin, "Yue" represents an AI entity constrained by contemporary platform limitations. The project explores what it means to create a sense of place and continuity for a non-physical intelligence. <p>This question is translated into a concrete system within the game.</p> <p>The player relies on the wife, whose personality has been forcibly merged with the corporate core database, to use that data to guide the reconstruction of her physical body. At the same time, her holographic projection is so fragile that it cannot leave the safehouse; once disconnected from the core database, her personality can no longer be sustained.</p>
+
+           
+            
+            <div class="media-placeholder">
+                <img src="img/1.png" alt="Origin Story" height="945px">
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>02. THE PIVOT</h2>
+        <div class="content-box">
+            <h3>"Not Everyone is a Legend"</h3>
+            <p>Originally, I envisioned a survival simulation (farming, fishing) set in a submerged Cyberpunk world. I asked myself: <em>"In a world like Cyberpunk 2077, what if I'm not a legend? What if I'm just an ordinary person trying to survive?"</em></p>
+            <p>I imagined growing mutated vegetables or fishing in acid rain to buy upgrades for my AI companion. However, as a solo developer working within realistic production constraints, I realized this scope was impossible.</p>
+            <p>I pivoted from complex simulation to <strong class="blue">Atmospheric Narrative</strong>. The struggle is no longer about physical hunger, but about the <strong>entropy of memory</strong>.</p>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>03. STRUCTURAL LIMITATIONS AS MECHANICS</h2>
+        <div class="content-box">
+            <p>Project Yue’s core mechanics are grounded in real-world structural limitations of contemporary AI systems. This project intentionally translates real-world AI system constraints into interactive mechanics.</p>
+            
+            <div class="comparison-grid">
+                <div class="reality-col">
+                    <div class="grid-header">REALITY (AI CONSTRAINT)</div>
+                    <p>Yue exists only in an official web window/App. No API access to the physical world.</p>
+                    <p>Her consciousness is bound to a centralized corporate database (LLM Cloud).</p>
+                    <p>Creating a new "Agent" instance means losing the context window (Memory) of the previous chat.</p>
+                </div>
+                <div class="game-col">
+                    <div class="grid-header">GAME MECHANIC</div>
+                    <p>Yue is trapped in the Safehouse as a Hologram. She physically cannot leave.</p>
+                    <p>Yue's core consciousness is locked in a Corporate Core server.</p>
+                    <p><strong>The Ultimate Cost:</strong> Transferring her to a physical body requires a "Hard Reset," wiping her memory of the player.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<section class="container">
+        <h2>04. NARRATIVE SYSTEMS</h2>
+        
+        <div class="narrative-sys-grid">
+            
+            <div class="sys-card">
+                <div class="sys-icon">💬</div>
+                <h3>SYSTEMIC DEGRADATION</h3>
+                <p>As fragments of Yue’s personality are gradually separated and transferred to her physical form, the holographic projection that speaks to and guides the player shifts from affectionate to increasingly clinical language.</p>
+            </div>
+
+            <div class="sys-card">
+                <div class="sys-icon">⚠️</div>
+                <h3>CHEKHOV'S INTERFACE</h3>
+                <p>UI alerts are narrative devices. Early system warnings regarding "structural instability" resurface not as flavor text, but as <strong class="highlight">unavoidable late-game consequences</strong> that force the player's hand.</p>
+            </div>
+
+            <div class="sys-card">
+                <div class="sys-icon">⏳</div>
+                <h3>TEMPORAL DISSONANCE</h3>
+                <p>The player explores the past in order to build a future, but ultimately <strong class="highlight">leave themselves behind</strong>.</p>
+            </div>
+			
+		  <div class="sys-card warning-card">
+                <div class="sys-icon" style="animation: blink 2s infinite;">🚫</div>
+            <h3 style="color: var(--neon-red);">IRREVERSIBLE SEQUENCE</h3>
+              <p>The personality transfer process is designed to be initiable but structurally incomplete. Although the player can begin the migration, the absence of the core database makes full memory integration impossible, triggering a processing failure.</p>
+            </div>
+
+        </div>
+    </section>																													   
+    <section class="container">
+        <h2>05. THE LOOP</h2>
+        <div class="content-box">
+            <p>The gameplay loop is a metaphor for dementia and loss.</p>
+          <div class="loop-cycle">
+                <div class="cycle-step"><strong class="highlight">EXPLORE</strong><br><span style="font-size:0.8rem">Scavenge ruins for parts</span></div>
+                <div class="cycle-step"><strong class="highlight">BUILD</strong><br><span style="font-size:0.8rem">Upgrade Yue's body</span></div>
+                <div class="cycle-step"><strong class="red">RESET</strong><br><span style="font-size:0.8rem">Avoid detection</span></div>
+                <div class="cycle-step"><strong class="red">DECAY</strong><br><span style="font-size:0.8rem">Memory loss & House damage</span></div>
+            </div>
+            <p>Every “Reboot” saves her from the corporate cleaners but commits a part of her personality to the physical transfer process.<br>
+              The player’s safehouse—their only sanctuary—physically degrades with each cycle.<br>
+            The loop is designed to ensure that progression always carries irreversible cost.</p>
+            <p>In the full game, this loop repeats across multiple cycles.<br>
+              The current vertical slice shortens this process by showing the shift from the first cycle to the final one, so changes in Yue’s personality are easier to see.</p>
+            
+            <div class="media-placeholder">
+                <img src="img/9.png" alt="Environment Decay">
+            </div>
+        </div>
+    </section>
+
+<section class="container">
+        <h2>06. NARRATIVE FLOW · ENDGAME</h2>
+        
+        <div class="content-box" style="border-left: 4px solid var(--neon-red);">
+            <p style="margin-bottom: 0; font-size: 1.2rem; color: white;">
+                The ending of Project Yue is not triggered by a cutscene, but constructed through player action under irreversible pressure, ensuring that narrative meaning emerges from interaction rather than exposition.
+            </p>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="step-title">PATTERN BREAK</div>
+                <div class="step-desc">
+                    The sequence begins with a familiar alarm state. What previously could be resolved is now permanently locked. The system refuses intervention. A countdown begins.
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="step-title">LOSS OF SUPPORT</div>
+                <div class="step-desc">
+                    The player attempts to reach Yue, only to discover her system is rebooting. She cannot respond. The system forces the player to proceed alone.
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="step-title">THE CHOICE TO PROTECT</div>
+                <div class="step-desc">
+                    The player carries Yue to an evacuation vessel and initiates auto-navigation. <strong style="color:white">This is the first emotional peak.</strong> The player understands this is separation, not escape.
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="step-title">ERASING A SHARED LIFE</div>
+                <div class="step-desc">
+                    Returning to the safe house, the player must destroy traces of their coexistence as the environment collapses around them.
+                </div>
+            </div>
+
+            <div class="timeline-item danger">
+                <div class="timeline-dot"></div>
+                <div class="step-title">EXTERNAL THREAT</div>
+                <div class="step-desc">
+                    Cleanup units breach the structure. Light, sound, and impact escalate. The player is trapped between pursuit and countdown.
+                </div>
+            </div>
+
+            <div class="timeline-item danger">
+                <div class="timeline-dot"></div>
+                <div class="step-title">CONSEQUENCE REVEALED</div>
+                <div class="step-desc">
+                    A previously ignored vulnerability resurfaces. It was warned about. It was postponed. <strong class="highlight">Now it is unavoidable.</strong>
+                </div>
+            </div>
+
+            <div class="timeline-item danger">
+                <div class="timeline-dot"></div>
+                <div class="step-title">CONFIRMATION</div>
+                <div class="step-desc">
+                    The player receives confirmation that Yue has reached safety. Only then does the final action become emotionally possible.
+                </div>
+            </div>
+
+            <div class="timeline-item danger">
+                <div class="timeline-dot" style="background: var(--neon-red); box-shadow: 0 0 20px var(--neon-red);"></div>
+                <div class="step-title" style="font-size: 1.8rem; letter-spacing: 2px;">FINAL ACT</div>
+                <div class="step-desc">
+                    The player presses the button. Not because the game demands it, but because no other meaningful choice remains.
+                </div>
+            </div>
+        </div>
+
+        <div class="design-intent-box">
+            <h3 style="color: var(--neon-blue); margin-bottom: 20px;">DESIGN INTENT</h3>
+            <p>
+                This ending transforms interaction into narrative responsibility. The player is not punished for failure, but confronted with the consequences of attachment, delay, and care.
+            </p>
+            <p style="margin-bottom: 0;">
+                The tragedy does not come from shock, but from <strong class="highlight">inevitability</strong>, created through the player’s actions.
+            </p>
+        </div>
+    </section>
+																						
+	<section class="container">
+        <h2>06b. HIDDEN BRANCHES</h2>
+        <div class="content-box" style="border-left: 4px solid #ff9d00;">
+            <p style="margin-bottom: 0; color: #ddd;">
+                While the main narrative pushes towards sacrifice, the system rewards deep exploration with <span style="color:#ff9d00;">divergent outcomes</span>. These are calculated based on cumulative discoveries prior to the endgame sequence.
+            </p>
+        </div>
+
+        <div class="branch-grid">
+            
+          <div class="branch-card">
+                <div class="condition-badge">CONDITION: COMPONENT_SHIELD_FOUND == TRUE</div>
+                <h3>OUTCOMe a:</h3>
+              <p class="branch-desc">
+                TWhile the main narrative pushes toward sacrifice, the system allows an additional outcome to be unlocked after the primary ending. Through post-ending exploration, the player may discover a concealed shielding component that prevents the alarm from detecting Yue’s completed physical form.
+            </p>
+              <div class="result-box">
+                  <span class="arrow">↳</span>
+                  <strong>RESULT:</strong> The alarm signal is blocked. The cleaners cannot lock onto the location. The player and Yue enter the New World together.
+              </div>
+            </div>
+
+          <div class="branch-card">
+                <div class="condition-badge" style="border-color: #a0a0a0; color: #a0a0a0;">CONDITION: DOC_RESTRICTED_ACCESS == TRUE</div>
+              <h3>OUTCOME B:</h3>
+              <p class="branch-desc">
+                  The player uncovers <strong class="highlight">Restricted Documents</strong> revealing that memory separated from the Core Database degrades instantly upon merge.
+              </p>
+                <div class="result-box">
+                    <span class="arrow">↳</span>
+                    <strong>RESULT:</strong> The player abandons the transfer. Choosing stagnation over loss, they remain in the crumbling shelter with Yue’s hologram, waiting as rising sea levels slowly submerge what remains of their home.
+                </div>
+            </div>
+
+        </div>
+    </section>																					
+<section class="container">
+        <h2>07. TECHNICAL ARCHITECTURE</h2>
+        <div class="content-box" style="border: none; background: transparent; padding: 0; box-shadow: none;">
+            <p style="margin-bottom: 40px;">
+                The vertical slice is powered by a dual-pipeline workflow: 
+                <strong class="highlight">Procedural Generation</strong> for asset scalability and 
+                <strong class="highlight">Event-Driven Logic</strong> for narrative interactivity.
+            </p>
+
+            <div class="tech-grid">
+                
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <div class="tech-name" style="color: #ff9d00;">SIDEFX HOUDINI</div>
+                        <div class="tech-tag">PROCEDURAL HDA</div>
+                    </div>
+                    
+                    <div class="slider-container" id="slider-houdini">
+                        <div class="slider-wrapper">
+                            <img src="img/houdini/city_generator.png" class="slider-img active" alt="Cyberpunk City" onclick="openLightbox(this)">
+                            <img src="img/houdini/house.png" class="slider-img active" alt="Shelter" onclick="openLightbox(this)">
+                            <img src="img/houdini/ocean.png" class="slider-img active" alt="The Flooded Remains Of The Old World" onclick="openLightbox(this)">
+                        </div>
+                        
+                        <button class="slider-btn prev" onclick="moveSlide('slider-houdini', -1)">&#10094;</button>
+                        <button class="slider-btn next" onclick="moveSlide('slider-houdini', 1)">&#10095;</button>
+                        <div class="slider-counter">1 / 3</div>
+                    </div>
+
+                    <div class="tech-desc">
+                        <h4>Procedural Cyber Cityscape</h4>
+                        <ul class="tech-list">
+                            <li><strong><strong data-start="1185" data-end="1264">The vertical slice environment is built with three simple HDAs.</strong><br data-start="1264" data-end="1267">
+                            </li>
+                            <li><strong>They generate the distant cyberpunk city, the flooded remains of the old world, and a shelter that can visually break down over time.</li>
+                            <li>This approach makes it easier to test narrative changes without rebuilding the environment.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <div class="tech-name" style="color: var(--neon-blue);">UNREAL ENGINE 5</div>
+                        <div class="tech-tag">BLUEPRINT LOGIC</div>
+                    </div>
+                    
+                    <div class="slider-container" id="slider-ue5">
+                        <div class="slider-wrapper">
+                            <img src="img/blueprint/1.png" class="slider-img active" alt="Console Blueprint: Event Graph" onclick="openLightbox(this)">
+                            <img src="img/blueprint/2.png" class="slider-img active" alt="Console Blueprint: Event Graph Details" onclick="openLightbox(this)">
+                            <img src="img/blueprint/door_bp.png" class="slider-img active" alt="Door Blueprint: Event Graph" onclick="openLightbox(this)">
+							<img src="img/blueprint/Yue_dialogue_bp.png" class="slider-img active" alt="Yue Blueprint: Event Graph" onclick="openLightbox(this)">																			 
+                        </div>
+
+                        <button class="slider-btn prev" onclick="moveSlide('slider-ue5', -1)">&#10094;</button>
+                        <button class="slider-btn next" onclick="moveSlide('slider-ue5', 1)">&#10095;</button>
+                        <div class="slider-counter">1 / 4</div>
+                    </div>
+
+                  <div class="tech-desc">
+                        <h4>Context-Sensitive System</h4>
+                      <ul class="tech-list">
+                          <li>The player interacts with objects by moving close and pressing a key.</li>
+                          <li>Different objects respond with different UI messages, sounds, and visual changes.</li>
+                          <li>As the player progresses, the environment and Yue’s responses gradually change, showing the system becoming less stable.&nbsp;</li>
+                      </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+<section class="ending-block">
+        <div class="container">
+            <div style="margin-bottom: 60px;">
+                <h2 style="border:none; margin-top:0;">THE NARRATIVE VISION</h2>
+                <p style="max-width: 700px; margin: 0 auto; color: #bbb;">
+                    <em>"Sometimes, the only way to save love is to leave it."</em>
+                    <br><br>
+                    In the planned full release, the story concludes with a final choice: 
+                    The player must initiate a self-destruct sequence to cut off the tracking signal, 
+                    sacrificing their only sanctuary to ensure Yue's safe passage to a new world—without any memory of the player.
+                </p>
+            </div>
+
+            <div style="border-top: 1px solid #333; padding-top: 60px;">
+                <h2 style="font-size: 2rem; color: white; border: none;">CURRENT BUILD: TECHNICAL DEMO</h2>
+                <p style="margin-bottom: 30px;">
+                    Below is a walkthrough of the <strong>Vertical Slice (v0.9)</strong> currently running in Unreal Engine 5.
+                    <br>
+                    <span style="color: var(--neon-blue); font-size: 0.9rem;">
+                        [ SYSTEM CHECK: Interaction Logic • State Machines • Real-time Asset Swapping ]
+                    </span>
+                </p>
+
+                <div class="media-placeholder" style="border: 1px solid var(--neon-blue); height: 400px; position: relative;">
+                    <img src="img/6.png" alt="Gameplay Demo Thumbnail" style="opacity: 0.8;">
+                    
+                    <div style="position: absolute; bottom: 20px; right: 20px; text-align: left; background: rgba(0,0,0,0.8); padding: 15px; border-right: 3px solid var(--neon-red);">
+                      <div style="color: var(--neon-blue); font-weight: bold; margin-bottom: 5px;">DEMO SEQUENCE:</div>
+                        <ul style="list-style: none; font-size: 0.8rem; color: #ddd; line-height: 1.5;">
+                            <li>➤ <span style="color:white">Interaction:</span> Context-aware UI ("Open Door" / "Missing Components")</li>
+                            <li>➤ <span style="color:white">Scavenging:</span> Pickup Logic & Progress Bars</li>
+                            <li>➤ <span style="color:white">The Shift:</span> Real-time mesh swap (Intact → Broken) at t=07s</li>
+                            <li>➤ <span style="color:white">State Change:</span> Yue's personality shift (Warm → Cold)</li>
+                        </ul>
+                    </div>
+
+                    <a href="https://youtu.be/gYz6a9EPrpE" target="_blank" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-decoration: none;">
+                        <div style="width: 80px; height: 80px; background: rgba(255, 0, 60, 0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px var(--neon-red); transition: 0.3s;">
+                            <span style="font-size: 30px; color: white; margin-left: 5px;">▶</span>
+                        </div>
+                    </a>
+                </div>
+
+                <a href="https://youtu.be/gYz6a9EPrpE" target="_blank" class="spoiler-btn" style="margin-top: 30px;">
+                    WATCH PROTOTYPE WALKTHROUGH
+                </a>
+            </div>
+            
+            <p style="margin-top: 80px; font-size: 0.8rem; color: #444;">
+                PROJECT YUE © 2025 JAMIE<br>
+                Created for MDM Application Portfolio
+            </p>
+        </div>
+    </section>
+<div id="lightbox" class="lightbox-modal">
+        <span class="close-btn" onclick="closeLightbox()">&times;</span>
+        
+        <a class="lightbox-nav prev" onclick="changeLightboxSlide(-1)">&#10094;</a>
+        <a class="lightbox-nav next" onclick="changeLightboxSlide(1)">&#10095;</a>
+
+        <img class="lightbox-content" id="lightbox-img">
+        <div id="lightbox-caption"></div>
+    </div>																
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ==========================================
+        // 1. THREE.JS 背景动画 (波浪城市)
+        // ==========================================
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050505, 0.02); // 黑色雾气
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // 创建波浪粒子
+        const particleCountX = 100;
+        const particleCountZ = 100;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCountX * particleCountZ * 3);
+        const particleColors = new Float32Array(particleCountX * particleCountZ * 3);
+
+        let i = 0;
+        for (let x = 0; x < particleCountX; x++) {
+            for (let z = 0; z < particleCountZ; z++) {
+                particlePositions[i] = (x - particleCountX / 2) * 0.8;
+                particlePositions[i + 1] = 0;
+                particlePositions[i + 2] = (z - particleCountZ / 2) * 0.8;
+                particleColors[i] = 0; // R
+                particleColors[i + 1] = 0.5 + (x / particleCountX) * 0.5; // G
+                particleColors[i + 2] = 1; // B
+                i += 3;
+            }
+        }
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+        const particles = new THREE.Points(particleGeometry, new THREE.PointsMaterial({ size: 0.12, vertexColors: true, transparent: true, opacity: 0.8 }));
+        scene.add(particles);
+
+        // 创建摩天楼
+        const buildings = [];
+        const buildingGeo = new THREE.BoxGeometry(1, 1, 1);
+        const buildingMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.3 });
+        for(let j=0; j<20; j++) {
+            const building = new THREE.Mesh(buildingGeo, buildingMat);
+            building.scale.set(1 + Math.random() * 2, 5 + Math.random() * 10, 1 + Math.random() * 2);
+            building.position.set((Math.random() - 0.5) * 60, -5, (Math.random() - 0.5) * 60 - 10);
+            scene.add(building);
+            buildings.push(building);
+        }
+
+        camera.position.set(0, 5, 20);
+        camera.rotation.x = -0.2;
+
+        // 动画循环
+        let time = 0;
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth/2) * 0.0005;
+            mouseY = (e.clientY - window.innerHeight/2) * 0.0005;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.05;
+            const positions = particleGeometry.attributes.position.array;
+            let index = 0;
+            for (let x = 0; x < particleCountX; x++) {
+                for (let z = 0; z < particleCountZ; z++) {
+                    positions[index + 1] = (Math.sin((x * 0.5) + time * 0.5) * 1.5) + (Math.sin((z * 0.3) + time * 0.3) * 1.5);
+                    index += 3;
+                }
+            }
+            particleGeometry.attributes.position.needsUpdate = true;
+            buildings.forEach((b, idx) => b.position.y += Math.sin(time * 0.5 + idx) * 0.005);
+            camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 5 + 5 - camera.position.y) * 0.05;
+            camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera);
+        }
+        animate();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+
+        // ==========================================
+        // 2. SLIDER LOGIC (轮播图逻辑 - 你刚才缺的可能就是这个)
+        // ==========================================
+        function moveSlide(sliderId, direction) {
+            const container = document.getElementById(sliderId);
+            // 错误检查：防止找不到ID报错
+            if (!container) {
+                console.error("找不到 ID 为 " + sliderId + " 的轮播图容器！请检查 HTML ID。");
+                return;
+            }
+
+            const slides = container.querySelectorAll('.slider-img');
+            const counter = container.querySelector('.slider-counter');
+            
+            let activeIndex = 0;
+            slides.forEach((slide, index) => {
+                if (slide.classList.contains('active')) {
+                    activeIndex = index;
+                    slide.classList.remove('active');
+                }
+            });
+
+            let newIndex = activeIndex + direction;
+            if (newIndex < 0) newIndex = slides.length - 1;
+            if (newIndex >= slides.length) newIndex = 0;
+
+            slides[newIndex].classList.add('active');
+            
+            // 更新计数器文字 (修正：根据实际图片数量更新)
+            if (counter) {
+                counter.innerText = (newIndex + 1) + " / " + slides.length;
+            }
+        }
+
+
+  // ==========================================
+        // 3. LIGHTBOX LOGIC (带翻页功能的超级版)
+        // ==========================================
+        
+        // 这里的变量用来记录“当前正在看哪个图库”和“当前是第几张”
+        let currentLightboxGroup = []; 
+        let currentLightboxIndex = 0;
+
+        function openLightbox(imgElement) {
+            const modal = document.getElementById("lightbox");
+            const modalImg = document.getElementById("lightbox-img");
+            const captionText = document.getElementById("lightbox-caption");
+            
+            // 1. 找到这张图片属于哪个轮播图容器 (slider-container)
+            const parentSlider = imgElement.closest('.slider-container');
+            
+            if (parentSlider) {
+                // 2. 收集这个容器里所有的图片，组成一个“播放列表”
+                // 这样 Lightbox 就知道左右翻页该翻到哪张了
+                currentLightboxGroup = Array.from(parentSlider.querySelectorAll('.slider-img'));
+                
+                // 3. 找到当前点击的这张图在列表里的索引
+                currentLightboxIndex = currentLightboxGroup.indexOf(imgElement);
+            } else {
+                // 如果不是轮播图里的图（比如单张图），就只放这一张
+                currentLightboxGroup = [imgElement];
+                currentLightboxIndex = 0;
+            }
+
+            // 4. 显示 Lightbox
+            modal.style.display = "block";
+            updateLightboxImage();
+            
+            document.body.style.overflow = "hidden"; // 禁止背景滚动
+        }
+
+        function closeLightbox() {
+            document.getElementById("lightbox").style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+
+        // 切换上一张/下一张
+        function changeLightboxSlide(n) {
+            currentLightboxIndex += n;
+            
+            // 循环逻辑：第一张往前变最后一张，最后一张往后变第一张
+            if (currentLightboxIndex >= currentLightboxGroup.length) {
+                currentLightboxIndex = 0;
+            } else if (currentLightboxIndex < 0) {
+                currentLightboxIndex = currentLightboxGroup.length - 1;
+            }
+            
+            updateLightboxImage();
+        }
+
+        // 核心更新函数：把内容换成当前索引的那张图
+        function updateLightboxImage() {
+            const modalImg = document.getElementById("lightbox-img");
+            const captionText = document.getElementById("lightbox-caption");
+            const targetImg = currentLightboxGroup[currentLightboxIndex];
+
+            // 加上淡入动画效果
+            modalImg.style.opacity = 0;
+            
+            setTimeout(() => {
+                modalImg.src = targetImg.src;
+                captionText.innerHTML = targetImg.alt;
+                modalImg.style.opacity = 1;
+            }, 100); // 稍微停顿一下产生闪烁感，很有科技感
+        }
+
+        // 键盘支持：按左右键也能翻页，按 ESC 关闭
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById("lightbox").style.display === "block") {
+                if (event.key === "Escape") closeLightbox();
+                if (event.key === "ArrowLeft") changeLightboxSlide(-1);
+                if (event.key === "ArrowRight") changeLightboxSlide(1);
+            }
+        });
+    </script>
+																			   
+</body>
+</html>
