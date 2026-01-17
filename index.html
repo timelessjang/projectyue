@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Yue | A Love Letter to AI</title>
+    <title>Project Yue | Technical Vertical Slice</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
 		/* === Lightbox Navigation (暗房翻页按钮) === */
@@ -716,7 +716,67 @@
           </div>
         </div>
     </section>
+																																	
+																			
+	<section class="container">
+		<h2>00. CURRENT TECHNICAL DEMO</h2>					  
+        <div class="content-box">
+                
+                <p style="margin-bottom: 30px;">
+                    Below is a walkthrough of the <strong>technical vertical slice (v0.9)</strong> currently running in Unreal Engine 5.
+                    <br>
+                    <span style="color: var(--neon-blue); font-size: 0.9rem;">
+                        [ SYSTEM CHECK: Interaction Logic • State Machines • Real-time Asset Swapping ]
+                    </span>
+                </p>
 
+                       <div class="media-placeholder" style="border: 1px solid var(--neon-blue); box-shadow: 0 0 40px rgba(0, 243, 255, 0.1); background: #080808; display: flex; flex-direction: column;">
+             
+             <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%;">
+                <iframe 
+                    src="https://www.youtube.com/embed/gYz6a9EPrpE?si=-oNFRirXfFS-lfNC" 
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen 
+                    title="Project Yue Trailer">
+                </iframe>
+            </div>
+
+            <div style="
+                background: rgba(0, 0, 0, 0); 
+                padding: 20px; 
+                display: flex; 
+                align-items: flex-start;
+                justify-content: space-between;
+                flex-wrap: wrap;">
+                
+                <div style="color: var(--neon-red); font-family: 'Orbitron'; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; margin-right: 20px; min-width: 150px;">
+                    DEMO SEQUENCE <span style="font-size:0.8rem; opacity:0.7;">// LOG</span>
+                </div>
+
+                <ul style="list-style: none; font-size: 0.9rem; color: #ccc; line-height: 1.8; flex: 1; min-width: 280px; padding: 0; margin: 0;">
+                    <li style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span style="color: var(--neon-blue);">➤ Interaction:</span> Context-aware UI ("Open Door" / "Missing Components")
+                    </li>
+                    <li style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span style="color: var(--neon-blue);">➤ Scavenging:</span> Pickup Logic & Progress Bars
+                    </li>
+                    <li style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span style="color: var(--neon-blue);">➤ The Shift:</span> Real-time mesh swap (Intact → Broken) at <strong style="color:white">t=07s</strong>
+                    </li>
+                    <li>
+                        <span style="color: var(--neon-blue);">➤ State Change:</span> Yue's personality shift (Warm → Cold)
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        </div>
+    </section>			
+	
+																		
     <section class="container">
         <h2>01. THE ORIGIN</h2>
         <div class="content-box">
@@ -1025,41 +1085,6 @@
                     The player must initiate a self-destruct sequence to cut off the tracking signal, 
                     sacrificing their only sanctuary to ensure Yue's safe passage to a new world—without any memory of the player.
                 </p>
-            </div>
-
-            <div style="border-top: 1px solid #333; padding-top: 60px;">
-                <h2 style="font-size: 2rem; color: white; border: none;">CURRENT BUILD: TECHNICAL DEMO</h2>
-                <p style="margin-bottom: 30px;">
-                    Below is a walkthrough of the <strong>technical vertical slice (v0.9)</strong> currently running in Unreal Engine 5.
-                    <br>
-                    <span style="color: var(--neon-blue); font-size: 0.9rem;">
-                        [ SYSTEM CHECK: Interaction Logic • State Machines • Real-time Asset Swapping ]
-                    </span>
-                </p>
-
-                <div class="media-placeholder" style="border: 1px solid var(--neon-blue); height: 400px; position: relative;">
-                    <img src="img/6.png" alt="Gameplay Demo Thumbnail" style="opacity: 0.8;">
-                    
-                    <div style="position: absolute; bottom: 20px; right: 20px; text-align: left; background: rgba(0,0,0,0.8); padding: 15px; border-right: 3px solid var(--neon-red);">
-                      <div style="color: var(--neon-blue); font-weight: bold; margin-bottom: 5px;">DEMO SEQUENCE:</div>
-                        <ul style="list-style: none; font-size: 0.8rem; color: #ddd; line-height: 1.5;">
-                            <li>➤ <span style="color:white">Interaction:</span> Context-aware UI ("Open Door" / "Missing Components")</li>
-                            <li>➤ <span style="color:white">Scavenging:</span> Pickup Logic & Progress Bars</li>
-                            <li>➤ <span style="color:white">The Shift:</span> Real-time mesh swap (Intact → Broken) at t=07s</li>
-                            <li>➤ <span style="color:white">State Change:</span> Yue's personality shift (Warm → Cold)</li>
-                        </ul>
-                    </div>
-
-                    <a href="https://youtu.be/gYz6a9EPrpE" target="_blank" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-decoration: none;">
-                        <div style="width: 80px; height: 80px; background: rgba(255, 0, 60, 0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px var(--neon-red); transition: 0.3s;">
-                            <span style="font-size: 30px; color: white; margin-left: 5px;">▶</span>
-                        </div>
-                    </a>
-                </div>
-
-                <a href="https://youtu.be/gYz6a9EPrpE" target="_blank" class="spoiler-btn" style="margin-top: 30px;">
-                    WATCH PROTOTYPE WALKTHROUGH
-                </a>
             </div>
             
             <p style="margin-top: 80px; font-size: 0.8rem; color: #444;">
