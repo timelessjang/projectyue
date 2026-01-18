@@ -745,6 +745,7 @@
 
             <div style="
                 background: rgba(0, 0, 0, 0); 
+				width: 100%;
                 padding: 20px; 
                 display: flex; 
                 align-items: flex-start;
@@ -1105,87 +1106,136 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // ==========================================
-        // 1. THREE.JS 背景动画 (波浪城市)
-        // ==========================================
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050505, 0.02); // 黑色雾气
+    // ==========================================
+    // 1. THREE.JS 背景动画 - "SILHOUETTE CITY" (剪影都市 - 高对比版)
+    // ==========================================
+    const scene = new THREE.Scene();
+    
+    // === 修复点 1: 提亮雾气 ===
+    // 不要用纯黑雾，改用深蓝色 (0x001220)，这样黑色的建筑会有剪影感
+    // 密度稍微降低一点 (0.002)，让远处的建筑也能透出来一点
+    scene.fog = new THREE.FogExp2(0x001220, 0.002); 
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3000);
+    camera.position.set(0, 50, 600); 
+
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+
+    // === 灯光系统 ===
+    // 增强一点环境光，防止死黑
+    const ambientLight = new THREE.AmbientLight(0x112244, 0.6);
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0x00f3ff, 1, 1500);
+    pointLight.position.set(0, 300, -500);
+    scene.add(pointLight);
+
+    // === 建筑群 (带边缘光) ===
+    const buildings = [];
+    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+    
+    // 材质：纯黑色，粗糙度高一点，吸收光线
+    const boxMat = new THREE.MeshLambertMaterial({ 
+        color: 0x232323, // 接近纯黑
+    });
+
+    // === 修复点 2: 边缘几何体 (EdgesGeometry) ===
+    // 提取盒子的边缘，做成发光线框
+    const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+    const edgesMat = new THREE.LineBasicMaterial({ 
+        color: 0xc90076, // 青蓝色线条
+        transparent: true, 
+        opacity: 0.8 // 关键：非常淡，只是为了勾勒轮廓，不抢眼
+    });
+
+    for(let i = 0; i < 70; i++) {
+        // 创建实体
+        const mesh = new THREE.Mesh(boxGeo, boxMat);
         
-        // 创建波浪粒子
-        const particleCountX = 100;
-        const particleCountZ = 100;
-        const particleGeometry = new THREE.BufferGeometry();
-        const particlePositions = new Float32Array(particleCountX * particleCountZ * 3);
-        const particleColors = new Float32Array(particleCountX * particleCountZ * 3);
+        // 随机缩放
+        const sx = 30 + Math.random() * 70;
+        const sy = 150 + Math.random() * 250; // 更高更夸张
+        const sz = 30 + Math.random() * 70;
+        mesh.scale.set(sx, sy, sz);
 
-        let i = 0;
-        for (let x = 0; x < particleCountX; x++) {
-            for (let z = 0; z < particleCountZ; z++) {
-                particlePositions[i] = (x - particleCountX / 2) * 0.8;
-                particlePositions[i + 1] = 0;
-                particlePositions[i + 2] = (z - particleCountZ / 2) * 0.8;
-                particleColors[i] = 0; // R
-                particleColors[i + 1] = 0.5 + (x / particleCountX) * 0.5; // G
-                particleColors[i + 2] = 1; // B
-                i += 3;
-            }
+        // 随机位置
+        mesh.position.x = (Math.random() - 0.5) * 1600;
+        mesh.position.z = (Math.random() - 0.5) * 1600 - 300;
+        mesh.position.y = sy / 2 - 120;
+
+        // 创建边缘线框，并作为子物体加到 Mesh 上
+        // 这样线框会自动跟随 Mesh 的缩放和位置
+        const edgeLines = new THREE.LineSegments(edgesGeo, edgesMat);
+        mesh.add(edgeLines); // 合体！
+
+        scene.add(mesh);
+        buildings.push(mesh);
+    }
+
+    // === 海面 (稍微提亮) ===
+    const planeGeo = new THREE.PlaneGeometry(3000, 3000, 64, 64);
+    const planeMat = new THREE.MeshBasicMaterial({ 
+        color: 0x2751b9, // 蓝一点
+        wireframe: true,
+        transparent: true,
+        opacity: 0.5 // 稍微显眼一点
+    });
+
+    const water = new THREE.Mesh(planeGeo, planeMat);
+    water.rotation.x = -Math.PI / 2;
+    water.position.y = -50;
+    scene.add(water);
+
+    // === 交互与动画 (保持不变) ===
+    let mouseX = 0;
+    let mouseY = 0;
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX - windowHalfX) * 0.5;
+        mouseY = (event.clientY - windowHalfY) * 0.5;
+    }, false);
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    let time = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        time += 0.005;
+
+        // 摄像机
+        camera.position.x += (mouseX - camera.position.x) * 0.01;
+        camera.position.y += (-mouseY * 0.5 + 50 - camera.position.y) * 0.01;
+        camera.lookAt(0, 0, -200);
+
+        // 水面波动
+        const positionAttribute = planeGeo.attributes.position;
+        const vertex = new THREE.Vector3();
+        for (let i = 0; i < positionAttribute.count; i++) {
+            vertex.fromBufferAttribute(positionAttribute, i);
+            const z = Math.sin(vertex.x * 0.02 + time * 2) * 10 + 
+                      Math.cos(vertex.y * 0.02 + time * 1.5) * 10;
+            positionAttribute.setZ(i, z);
         }
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-        particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
-        const particles = new THREE.Points(particleGeometry, new THREE.PointsMaterial({ size: 0.12, vertexColors: true, transparent: true, opacity: 0.8 }));
-        scene.add(particles);
+        positionAttribute.needsUpdate = true;
 
-        // 创建摩天楼
-        const buildings = [];
-        const buildingGeo = new THREE.BoxGeometry(1, 1, 1);
-        const buildingMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.3 });
-        for(let j=0; j<20; j++) {
-            const building = new THREE.Mesh(buildingGeo, buildingMat);
-            building.scale.set(1 + Math.random() * 2, 5 + Math.random() * 10, 1 + Math.random() * 2);
-            building.position.set((Math.random() - 0.5) * 60, -5, (Math.random() - 0.5) * 60 - 10);
-            scene.add(building);
-            buildings.push(building);
-        }
-
-        camera.position.set(0, 5, 20);
-        camera.rotation.x = -0.2;
-
-        // 动画循环
-        let time = 0;
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX - window.innerWidth/2) * 0.0005;
-            mouseY = (e.clientY - window.innerHeight/2) * 0.0005;
+        // 建筑浮动
+        buildings.forEach((b, idx) => {
+            b.position.y += Math.sin(time + idx) * 0.05;
         });
 
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.05;
-            const positions = particleGeometry.attributes.position.array;
-            let index = 0;
-            for (let x = 0; x < particleCountX; x++) {
-                for (let z = 0; z < particleCountZ; z++) {
-                    positions[index + 1] = (Math.sin((x * 0.5) + time * 0.5) * 1.5) + (Math.sin((z * 0.3) + time * 0.3) * 1.5);
-                    index += 3;
-                }
-            }
-            particleGeometry.attributes.position.needsUpdate = true;
-            buildings.forEach((b, idx) => b.position.y += Math.sin(time * 0.5 + idx) * 0.005);
-            camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 5 + 5 - camera.position.y) * 0.05;
-            camera.lookAt(0, 0, 0);
-            renderer.render(scene, camera);
-        }
-        animate();
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        renderer.render(scene, camera);
+    }
+
+    animate();
 
 
         // ==========================================
