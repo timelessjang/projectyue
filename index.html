@@ -1113,7 +1113,7 @@
     // === 修复点 1: 提亮雾气 ===
     // 不要用纯黑雾，改用深蓝色 (0x001220)，这样黑色的建筑会有剪影感
     // 密度稍微降低一点 (0.002)，让远处的建筑也能透出来一点
-    scene.fog = new THREE.FogExp2(0x001220, 0.002); 
+    scene.fog = new THREE.FogExp2(0x001d33, 0.002); 
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3000);
     camera.position.set(0, 50, 600); 
