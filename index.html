@@ -334,11 +334,13 @@
             margin-bottom: 15px;
         }
 
-        .tech-name {
-            font-family: 'Orbitron';
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
+.tech-name {
+    font-family: 'Orbitron';
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* 加一点发光 */
+}
 
         .tech-tag {
             background: #222;
@@ -688,6 +690,45 @@
             .reality-col { border-right: none; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
             .cycle-step::after { content: '↓'; right: 50%; top: 100%; transform: translate(50%, 0); }
         }
+
+        /* === 新增：技术切片警告框专用样式 === */
+.tech-warning-box {
+    background: rgba(20, 0, 0, 0.6); /* 深红黑背景 */
+    border: 1px solid var(--neon-red);
+    border-left: 4px solid var(--neon-red); /* 左边加粗，像代码引用 */
+    padding: 20px;
+    font-family: 'Fira Code', 'Courier New', monospace; /* 强制等宽字体 */
+    font-size: 0.9rem;
+    color: #ffcccc;
+    position: relative;
+    margin-bottom: 30px;
+    box-shadow: 0 0 15px rgba(255, 0, 60, 0.1);
+}
+
+.tech-warning-box::before {
+    content: '⚠️ SYSTEM_DEBUG_MODE :: VERTICAL_SLICE_v0.9';
+    position: absolute;
+    top: -12px;
+    left: 10px;
+    background: var(--bg-color);
+    padding: 0 10px;
+    color: var(--neon-red);
+    font-family: 'Orbitron';
+    font-size: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* 闪烁的光标效果 */
+.cursor-blink {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--neon-red);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 5px;
+}
     </style>
 </head>
 <body>
@@ -708,8 +749,8 @@
             <p style="max-width: 700px; margin-top: 20px;">
               An interactive narrative technical vertical slice exploring memory decay as a playable system.
           </p>
-                        <p style="font-size: 1rem;"max-width: 600px; margin-top: 20px;">
-                Built with Houdini and Unreal Engine 5.
+                        <p style="font-size: 1rem;"max-width: 600px; margin-top: 20px;>
+                [ENGINE_VER]: UE 5.4 &nbsp;&nbsp;&nbsp;&nbsp;[PCG_TOOL]: HOUDINI 20.5
             </p>
                         
             <div class="media-placeholder" style="height: 0px; border:none;">
@@ -718,27 +759,39 @@
     </section>
 																																	
 																			
-	<section class="container">
-		<h2>00. CURRENT TECHNICAL DEMO</h2>					  
-        <div class="content-box">
-                
-                <p><strong class="red">This project is presented as a technical vertical slice, designed to validate core gameplay loops, interaction systems, and narrative pacing, rather than final art polish or content completeness.</strong></p>
-                <p style="margin-bottom: 30px;">
-                    Below is a walkthrough of the <strong>technical vertical slice (v0.9)</strong> currently running in Unreal Engine 5.
-                    <br>
-                    <span style="color: var(--neon-blue); font-size: 0.9rem;">
-                        [ SYSTEM CHECK: Interaction Logic • State Machines • Real-time Asset Swapping ]
-                    </span>
-                </p>
+<section class="container">
+    <h2>00. CURRENT TECHNICAL DEMO</h2>
+    <div class="content-box">
 
-                       <div class="media-placeholder" style="border: 1px solid var(--neon-blue); box-shadow: 0 0 40px rgba(0, 243, 255, 0.1); background: #080808; display: flex; flex-direction: column;">
+        <div class="tech-warning-box">
+            <p style="margin: 0; line-height: 1.6;">
+                <span style="color: var(--neon-red); font-weight: bold;">>> WARNING: ART ASSETS INCOMPLETE</span><br>
+                This project is presented as a <strong style="color: white; border-bottom: 1px dashed var(--neon-red);">technical vertical slice</strong>. 
+                It is designed to validate <span style="color: var(--neon-blue);">core gameplay loops</span>, 
+                <span style="color: var(--neon-blue);">interaction systems</span>, and 
+                <span style="color: var(--neon-blue);">narrative pacing</span>.
+                <br><br>
+                It is NOT representative of final art polish.
+                <span class="cursor-blink"></span>
+            </p>
+        </div>
+
+        <p style="margin-bottom: 30px; font-size: 0.9rem;">
+            Below is a walkthrough of the <strong>technical vertical slice (v0.9)</strong> currently running in Unreal Engine 5.
+            <br>
+            <span style="color: var(--neon-blue); font-size: 0.8rem; font-family: monospace;">
+                [ SYSTEM STATUS: Interaction Logic: ONLINE • State Machines: ACTIVE • Real-time Asset Swapping: ENABLED ]
+            </span>
+        </p>
+
+        <div class="media-placeholder" style="border: 1px solid var(--neon-blue); box-shadow: 0 0 40px rgba(0, 243, 255, 0.1); background: #080808; display: flex; flex-direction: column;">
              
              <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%;">
                 <iframe 
                     src="https://www.youtube.com/embed/gYz6a9EPrpE?si=-oNFRirXfFS-lfNC" 
                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    referrerpolicy="strict-origin-when-cross-origin"
+                    referrerpolicy="strict-origin-when-cross-origin" 
                     allowfullscreen 
                     title="Project Yue Trailer">
                 </iframe>
@@ -774,8 +827,8 @@
 
         </div>
 
-        </div>
-    </section>			
+    </div>
+</section>
 	
 																		
     <section class="container">
@@ -1181,7 +1234,7 @@
         color: 0x2751b9, // 蓝一点
         wireframe: true,
         transparent: true,
-        opacity: 0.5 // 稍微显眼一点
+        opacity: 0.8 // 稍微显眼一点
     });
 
     const water = new THREE.Mesh(planeGeo, planeMat);
