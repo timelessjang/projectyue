@@ -471,7 +471,7 @@
             margin: 0 auto;
             padding: 0 20px;
             position: relative;
-            z-index: 10;
+            /*z-index: 10;*/
         }
 
         /* === Typography === */
@@ -779,23 +779,33 @@
         <p style="margin-bottom: 30px; font-size: 0.9rem;">
             Below is a walkthrough of the <strong>technical vertical slice (v0.9)</strong> currently running in Unreal Engine 5.
             <br>
-            <span style="color: var(--neon-blue); font-size: 0.8rem; font-family: monospace;">
+            <span style="color: var(--neon-blue); font-size: 1rem;">
                 [ SYSTEM STATUS: Interaction Logic: ONLINE • State Machines: ACTIVE • Real-time Asset Swapping: ENABLED ]
             </span>
         </p>
 
         <div class="media-placeholder" style="border: 1px solid var(--neon-blue); box-shadow: 0 0 40px rgba(0, 243, 255, 0.1); background: #080808; display: flex; flex-direction: column;">
              
-             <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%;">
-                <iframe 
-                    src="https://www.youtube.com/embed/pKi8psYgY0M?si=-wM4NxnBzfweiXi2" 
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    referrerpolicy="strict-origin-when-cross-origin" 
-                    allowfullscreen 
-                    title="Project Yue Trailer">
-                </iframe>
-            </div>
+             <div class="media-placeholder" 
+     style="box-shadow: 0 0 40px rgba(0, 243, 255, 0.1); 
+            background: #080808; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            z-index: 10000;">
+             
+     <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%;">
+        
+        <iframe 
+            src="https://www.youtube.com/embed/pKi8psYgY0M?si=-wM4NxnBzfweiXi2" 
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerpolicy="strict-origin-when-cross-origin" 
+            allowfullscreen 
+            title="Project Yue Trailer">
+        </iframe>
+    </div>
+</div>
 
             <div style="
                 background: rgba(0, 0, 0, 0); 
@@ -824,6 +834,23 @@
                     </li>
                 </ul>
             </div>
+            <div style="
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px dashed #666;
+    background: rgba(255, 255, 255, 0.05);
+    font-family: 'Rajdhani', sans-serif;
+    color: #aaa;
+    font-size: 0.9rem;
+    line-height: 1.5;">
+    
+    <strong style="color: var(--neon-blue); display: block; margin-bottom: 5px;">
+        // DEV NOTE: PROGRESSION ACCELERATED
+    </strong>
+    
+    This demo forces an immediate contrast for visualization purposes. 
+    In the final game, the degradation (Warm &rarr; Cold / Intact &rarr; Ruined) occurs gradually over multiple loops.
+</div>
 
         </div>
 
